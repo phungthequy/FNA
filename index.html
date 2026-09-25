@@ -309,7 +309,7 @@ tr.total td{font-weight:700;background:var(--soft)}
     <div class="bb">
       <div class="two">
         <div class="tw"><table>
-          <thead><tr><th>Khoản mục</th><th style="min-width:190px">Mỗi tháng (đồng)</th><th class="yr" style="min-width:120px">Mỗi năm</th></tr></thead>
+          <thead><tr><th>Khoản mục</th><th style="min-width:190px">Mỗi tháng (triệu đồng)</th><th class="yr" style="min-width:120px">Mỗi năm (triệu đồng)</th></tr></thead>
           <tbody>
             <tr><td class="lbl">Thu nhập chủ động <div class="hint">Lương, thưởng, thu nhập kinh doanh</div></td><td><input class="money" id="thuCD"></td><td class="yr" id="y-thuCD">–</td></tr>
             <tr><td class="lbl">Thu nhập thụ động <div class="hint">Lãi tiền gửi, cho thuê, cổ tức, vốn góp</div></td><td><input class="money" id="thuTD"></td><td class="yr" id="y-thuTD">–</td></tr>
@@ -359,7 +359,7 @@ tr.total td{font-weight:700;background:var(--soft)}
 
       <div class="sub">Hợp đồng bảo hiểm KH đang có (chỉ tính cho KH)</div>
       <div class="tw"><table>
-        <thead><tr><th style="min-width:130px">Sản phẩm</th><th style="min-width:120px">Công ty</th><th style="min-width:170px">STBH sản phẩm chính</th><th style="min-width:170px">STBH bệnh lý nghiêm trọng</th><th style="min-width:160px">HSCR (đồng/ngày)</th><th></th></tr></thead>
+        <thead><tr><th style="min-width:130px">Sản phẩm</th><th style="min-width:120px">Công ty</th><th style="min-width:170px">STBH sản phẩm chính</th><th style="min-width:170px">STBH bệnh lý nghiêm trọng</th><th style="min-width:160px">HSCR (triệu/ngày)</th><th></th></tr></thead>
         <tbody id="exBody"></tbody>
       </table></div>
       <button class="btn btn-line add" onclick="addEx()">+ Thêm hợp đồng</button>
@@ -401,8 +401,8 @@ const NEEDS=[
   calc:(p,d)=>({blnt:p.cachB==='tc'?p.tc:p.noB,hscr:p.hscr,mr:p.mr,
    hint:(p.cachB==='tc'&&!p.tc?'<b style="color:var(--pink)">Cần hỏi KH số tiền muốn bảo vệ tài chính khi mắc bệnh lý nghiêm trọng.</b><br>':'')+
         (p.cachB!=='tc'&&!d.tongNo?'<b style="color:var(--pink)">KH không có nợ vay — chuyển sang “Mức KH muốn bảo vệ” và hỏi KH.</b><br>':'')+
-        `Chi phí thiết yếu ${short(d.chiTY/12)}/tháng ÷ 30 ≈ ${fmt(d.chiTY/12/30)} đ/ngày`}),
-  fm:'BLNT = Tổng dư nợ, hoặc số tiền KH muốn bảo vệ tài chính (+ phần Bảo vệ thu nhập nếu có chọn) · HSCR = Chi phí thiết yếu/tháng ÷ 30 (làm tròn lên 100 nghìn)'},
+        `Chi phí thiết yếu ${short(d.chiTY/12)}/tháng ÷ 30 ≈ ${fmt(d.chiTY/12/30)} triệu/ngày`}),
+  fm:'BLNT = Tổng dư nợ, hoặc số tiền KH muốn bảo vệ tài chính (+ phần Bảo vệ thu nhập nếu có chọn) · HSCR = Chi phí thiết yếu/tháng ÷ 30 (làm tròn lên 0,1 triệu)'},
  {id:'vay',name:'Bảo vệ khoản vay',goal:'Khi rủi ro xấu nhất xảy ra, STBH bù đắp khoản vay — không ảnh hưởng tài sản thế chấp và cuộc sống gia đình.',prod:['Sản phẩm chính'],
   params:[{k:'no',l:'Dư nợ cần bảo vệ',t:'money',auto:d=>d.tongNo}],
   calc:p=>({chinh:p.no}),fm:'STBH chính = Dư nợ cần bảo vệ'},
@@ -421,26 +421,24 @@ const NEEDS=[
   params:[{k:'st',l:'Số tiền KH muốn để lại',t:'money'}],
   calc:p=>({chinh:p.st}),fm:'STBH chính = Số tiền muốn để lại'}
 ];
-const TYPES=[['chinh','STBH sản phẩm chính','đồng'],['blnt','STBH bệnh lý nghiêm trọng','đồng'],['hscr','HSCR','đồng/ngày']];
+const TYPES=[['chinh','STBH sản phẩm chính','triệu đồng'],['blnt','STBH bệnh lý nghiêm trọng','triệu đồng'],['hscr','HSCR','triệu/ngày']];
 
 /* ================= Helpers ================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const val=el=>el?(parseInt(String(el.value).replace(/\D/g,''))||0):0;
+const val=el=>el?Math.round((parseFloat(String(el.value).replace(/\./g,'').replace(',','.'))||0)*1e6):0;
 const mv=id=>val(document.getElementById(id));
-const fmt=n=>Math.round(n).toLocaleString('vi-VN');
-function short(n){const a=Math.abs(n),s=n<0?'−':'';
-  if(a>=1e9)return s+trim(a/1e9)+' tỷ'; if(a>=1e6)return s+trim(a/1e6)+' triệu';
-  if(a>=1e3)return s+trim(a/1e3)+' nghìn'; return s+fmt(a);}
+const fmt=n=>(Math.round(n/1e4)/100).toLocaleString('vi-VN',{maximumFractionDigits:2});
+function short(n){return fmt(n)+' triệu';}
 function trim(x){let t=x>=100?x.toFixed(0):x>=10?x.toFixed(1):x.toFixed(2);if(t.includes('.'))t=t.replace(/\.?0+$/,'');return t.replace('.',',');}
 function roundUp(n,step){return n>0?Math.ceil(n/step)*step:0}
 function setMoney(el,n){el.value=n?fmt(n):'';updShort(el)}
-function updShort(el){const s=el.parentElement.querySelector('.short');if(s){const n=val(el);s.textContent=n?short(n):''}}
+function updShort(el){const s=el.parentElement.querySelector('.short');if(s)s.textContent='triệu'}
 function radio(name){const r=document.querySelector(`input[name="${name}"]:checked`);return r?r.value:''}
 function wrapMoney(root){(root||document).querySelectorAll('input.money').forEach(el=>{
   if(el.parentElement.classList.contains('mwrap'))return;
   el.type='text';el.inputMode='numeric';el.autocomplete='off';
   const w=document.createElement('div');w.className='mwrap';el.replaceWith(w);w.appendChild(el);
-  const s=document.createElement('span');s.className='short';w.appendChild(s);})}
+  const s=document.createElement('span');s.className='short';s.textContent='triệu';w.appendChild(s);el.placeholder=el.placeholder||'0';})}
 function ageFrom(dob){if(!dob)return 0;const b=new Date(dob),n=new Date();let a=n.getFullYear()-b.getFullYear();
   if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return Math.max(0,a)}
 
@@ -643,11 +641,11 @@ function renderResults(d,needs){
   const b1=Math.max(0,d.tongThu*p1), b2=Math.max(0,d.thangDu*p2), cap=Math.min(b1,b2);
   const capBy=b2<=b1?'tk':'thu';
 
-  const kpi=(k,l,u)=>!tot[k]?`<div class="kpi" style="opacity:.75"><div><div class="kk">${l}</div><div class="kv" style="font-size:17px">Chưa có nhu cầu</div><div class="ks">Đang có ${k==='hscr'?fmt(d.ex[k])+' đ/ngày':short(d.ex[k])} · nhu cầu tính ra bằng 0</div></div></div>`:`<div class="kpi">${ring(cov[k],'#1E9BFF')}<div><div class="kk">${l} còn thiếu</div><div class="kv">${k==='hscr'?fmt(gap[k]):short(gap[k])}${k==='hscr'?' <span style="font-size:13px;font-weight:500">đ/ngày</span>':''}</div><div class="ks">Nhu cầu ${k==='hscr'?fmt(tot[k]):short(tot[k])} · đã có ${k==='hscr'?fmt(d.ex[k]):short(d.ex[k])}</div></div></div>`;
+  const kpi=(k,l,u)=>!tot[k]?`<div class="kpi" style="opacity:.75"><div><div class="kk">${l}</div><div class="kv" style="font-size:17px">Chưa có nhu cầu</div><div class="ks">Đang có ${k==='hscr'?fmt(d.ex[k])+' triệu/ngày':short(d.ex[k])} · nhu cầu tính ra bằng 0</div></div></div>`:`<div class="kpi">${ring(cov[k],'#1E9BFF')}<div><div class="kk">${l} còn thiếu</div><div class="kv">${k==='hscr'?fmt(gap[k]):short(gap[k])}${k==='hscr'?' <span style="font-size:13px;font-weight:500">triệu/ngày</span>':''}</div><div class="ks">Nhu cầu ${short(tot[k])} · đã có ${short(d.ex[k])}</div></div></div>`;
 
-  const gapRow=(k,l,u)=>{const N=tot[k],H=d.ex[k];if(!N&&H){const f=x=>k==='hscr'?fmt(x)+' đ/ngày':short(x);return `<div class="gap-row"><div class="gap-top"><span class="gn">${l}</span><span class="gs">Nhu cầu tính ra bằng 0 · đang có <b>${f(H)}</b></span></div><div class="track"><div class="seg over" style="width:100%">Đang có ${f(H)} — chưa có nhu cầu tương ứng</div></div></div>`}const sc=Math.max(N,H)||1;const have=Math.min(N,H),miss=Math.max(0,N-H),over=Math.max(0,H-N);
-    const f=x=>k==='hscr'?fmt(x):short(x);
-    return `<div class="gap-row"><div class="gap-top"><span class="gn">${l}</span><span class="gs">Nhu cầu <b>${f(N)}</b> ${k==='hscr'?'đ/ngày':''} · ${miss?`còn thiếu <b style="color:var(--pink)">${f(miss)}</b>`:over?`thừa <b>${f(over)}</b>`:'đã đủ'}</span></div>
+  const gapRow=(k,l,u)=>{const N=tot[k],H=d.ex[k];if(!N&&H){const f=x=>k==='hscr'?fmt(x)+' triệu/ngày':short(x);return `<div class="gap-row"><div class="gap-top"><span class="gn">${l}</span><span class="gs">Nhu cầu tính ra bằng 0 · đang có <b>${f(H)}</b></span></div><div class="track"><div class="seg over" style="width:100%">Đang có ${f(H)} — chưa có nhu cầu tương ứng</div></div></div>`}const sc=Math.max(N,H)||1;const have=Math.min(N,H),miss=Math.max(0,N-H),over=Math.max(0,H-N);
+    const f=x=>k==='hscr'?fmt(x)+' triệu/ngày':short(x);
+    return `<div class="gap-row"><div class="gap-top"><span class="gn">${l}</span><span class="gs">Nhu cầu <b>${f(N)}</b> · ${miss?`còn thiếu <b style="color:var(--pink)">${f(miss)}</b>`:over?`thừa <b>${f(over)}</b>`:'đã đủ'}</span></div>
     <div class="track">${have?`<div class="seg have" style="width:${have/sc*100}%">${have/sc>.12?'Đã có '+f(have):''}</div>`:''}${miss?`<div class="seg miss" style="width:${miss/sc*100}%">${miss/sc>.12?'Thiếu '+f(miss):''}</div>`:''}${over?`<div class="seg over" style="width:${over/sc*100}%">${over/sc>.12?'Thừa '+f(over):''}</div>`:''}${!N&&!H?'<div style="padding:0 12px;font-size:12px;color:var(--muted);align-self:center">Không có nhu cầu</div>':''}</div></div>`};
 
   const stackRow=(k,l)=>tot[k]?`<div class="stack-row"><div class="sl">${l}</div><div class="stack">${by[k].map(s=>`<div class="seg" title="${s.l}: ${fmt(s.v)}" style="width:${s.v/tot[k]*100}%;background:${s.c}">${s.v/tot[k]>.14?Math.round(s.v/tot[k]*100)+'%':''}</div>`).join('')}</div></div>`:'';
@@ -660,7 +658,7 @@ function renderResults(d,needs){
   if(gaps.length)ins.push({c:'warn',t:`Lỗ hổng lớn nhất: <b>${gaps[0].l}</b> mới được bảo vệ ${Math.round((1-gaps[0].r)*100)}% nhu cầu.`});
   else ins.push({c:'ok',t:'Bảo hiểm hiện có đã đáp ứng các nhu cầu đã chọn. IC nên rà soát lại mức nhu cầu hoặc mở rộng nhóm nhu cầu khác.'});
   const nm={chinh:'STBH sản phẩm chính',blnt:'STBH bệnh lý nghiêm trọng',hscr:'HSCR'},rel={chinh:'Bảo vệ khoản vay, Tài sản, Thu nhập, Học vấn hoặc Thừa kế',blnt:'KH chưa có khoản trả nợ hằng tháng — nhập chi phí điều trị muốn dự phòng',hscr:'kiểm tra thu nhập / chi phí / trả nợ ở bước Dòng tiền'};
-  TYPES.forEach(([k])=>{if(!tot[k]&&d.ex[k])ins.push({c:'warn',t:`KH đang có ${nm[k]} ${k==='hscr'?fmt(d.ex[k])+' đ/ngày':short(d.ex[k])} nhưng nhu cầu tính ra bằng 0 (${rel[k]}).`})});
+  TYPES.forEach(([k])=>{if(!tot[k]&&d.ex[k])ins.push({c:'warn',t:`KH đang có ${nm[k]} ${k==='hscr'?fmt(d.ex[k])+' triệu/ngày':short(d.ex[k])} nhưng nhu cầu tính ra bằng 0 (${rel[k]}).`})});
   if(topChinh)ins.push({c:'',t:`Phần lớn STBH chính đến từ nhu cầu <b>${topChinh.l}</b> (${Math.round(topChinh.v/tot.chinh*100)}%) — nên mở đầu câu chuyện tư vấn từ đây.`});
   if(d.thangDu<=0)ins.push({c:'warn',t:'Dòng tiền không có thặng dư: ngân sách phí theo điều kiện tiết kiệm bằng 0. Cần xem lại chi tiêu trước khi đề xuất phí.'});
   else if(d.tongThu&&d.thangDu/d.tongThu<.2)ins.push({c:'warn',t:`Thặng dư chỉ ${Math.round(d.thangDu/d.tongThu*100)}% thu nhập — dòng tiền khá căng.`});
@@ -732,9 +730,9 @@ function renderResults(d,needs){
 
    <div class="card"><h4>Điểm chính để tư vấn</h4><ul class="insights">${ins.map(i=>`<li class="${i.c}">${i.t}</li>`).join('')}</ul></div>
 
-   <div class="card"><h4>Đầu vào thiết kế bảng minh họa</h4><p class="cd">IC dùng các con số dưới đây để thiết kế trên hệ thống. Đề xuất đã làm tròn lên (10 triệu với STBH, 100 nghìn với HSCR).</p>
+   <div class="card"><h4>Đầu vào thiết kế bảng minh họa</h4><p class="cd">IC dùng các con số dưới đây để thiết kế trên hệ thống. Đề xuất đã làm tròn lên (10 triệu với STBH, 0,1 triệu với HSCR). Đơn vị: triệu đồng.</p>
      <div class="tw"><table class="ic-table"><thead><tr><th>Hạng mục</th><th class="r">Nhu cầu</th><th class="r">Đã có</th><th class="r">Còn thiếu</th><th class="r">Đề xuất thiết kế</th></tr></thead><tbody>
-       ${TYPES.map(([k,l,u])=>tot[k]?`<tr><td>${l}${k==='hscr'?' (đ/ngày)':''}</td><td class="r">${fmt(tot[k])}</td><td class="r">${fmt(d.ex[k])}</td><td class="r">${fmt(gap[k])}</td><td class="r hl">${fmt(roundUp(gap[k],k==='hscr'?100000:10000000))}</td></tr>`:`<tr><td>${l}${k==='hscr'?' (đ/ngày)':''}</td><td class="r" style="color:var(--muted)">0</td><td class="r">${fmt(d.ex[k])}</td><td class="r" style="color:var(--muted)">–</td><td class="r" style="color:var(--muted)">Không cần thêm</td></tr>`).join('')}
+       ${TYPES.map(([k,l,u])=>tot[k]?`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r">${fmt(tot[k])}</td><td class="r">${fmt(d.ex[k])}</td><td class="r">${fmt(gap[k])}</td><td class="r hl">${fmt(roundUp(gap[k],k==='hscr'?100000:10000000))}</td></tr>`:`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r" style="color:var(--muted)">0</td><td class="r">${fmt(d.ex[k])}</td><td class="r" style="color:var(--muted)">–</td><td class="r" style="color:var(--muted)">Không cần thêm</td></tr>`).join('')}
        <tr><td>Thẻ MR (bảo lãnh viện phí)</td><td class="r" colspan="3"></td><td class="r hl">${mr?'Có nhu cầu':'Không'}</td></tr>
        ${huu?`<tr><td>Giá trị hoàn lại mục tiêu tại tuổi ${d.tuoiHuu}</td><td class="r" colspan="3"></td><td class="r hl">${fmt(huu)}</td></tr>`:''}
        <tr class="total"><td>Phí bảo hiểm tối đa/năm</td><td class="r" colspan="3"></td><td class="r hl">${fmt(cap)}</td></tr>
@@ -763,13 +761,13 @@ function validate(i){
 document.addEventListener('click',e=>{
   const nb=e.target.closest('.next');if(nb){const i=$$('.block').indexOf(nb.closest('.block'));
     if(validate(i)){nb.closest('.block').classList.add('done');recalc();unlock(i+1,true)}}
-  const fx=e.target.closest('[data-fix="edu"]');if(fx){const dd=readData();setMoney($('#chiGD'),Math.ceil(dd.eduYear/12/1000)*1000);recalc();return}
+  const fx=e.target.closest('[data-fix="edu"]');if(fx){const dd=readData();setMoney($('#chiGD'),Math.ceil(dd.eduYear/12/1e4)*1e4);recalc();return}
   const rs=e.target.closest('.reset');if(rs){e.preventDefault();const [n,k]=rs.dataset.reset.split('.');
     $(`[data-n="${n}"][data-k="${k}"]`).dataset.auto='1';recalc()}
 });
 document.addEventListener('input',e=>{
   const t=e.target;
-  if(t.classList.contains('money')){const n=val(t);t.value=n?fmt(n):'';updShort(t)}
+  if(t.classList.contains('money')){let v=t.value.replace(/[^\d,]/g,'');const i=v.indexOf(',');let ip=i<0?v:v.slice(0,i),dp=i<0?null:v.slice(i+1).replace(/,/g,'').slice(0,2);ip=ip.replace(/^0+(?=\d)/,'');ip=ip?Number(ip).toLocaleString('vi-VN'):(dp!==null?'0':'');t.value=ip+(dp!==null?','+dp:'')}
   if(t.dataset.auto)t.dataset.auto='0';
   recalc();
 });
