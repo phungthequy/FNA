@@ -193,11 +193,48 @@ tr.total td{font-weight:700;background:var(--soft)}
 }
 
 /* ---------- Print ---------- */
+/* scenarios */
+.warnbox{display:none;margin:16px 0 0;padding:12px 14px;border-radius:var(--r-sm);background:#FDEAF3;color:#8A0049;font-size:13px}
+.warnbox.show{display:block}
+.warnbox div+div{margin-top:6px}
+.warnbox button{margin-left:8px;border:0;background:var(--pink);color:#fff;border-radius:999px;padding:4px 12px;font-weight:600;cursor:pointer;font-size:12px}
+.scn{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.scn{grid-template-columns:1fr}}
+.scn-card{border:1px solid var(--line);border-radius:var(--r-md);padding:16px}
+.scn-card h5{margin:0 0 2px;font-size:15px}
+.scn-card .cd{margin:0 0 10px;color:var(--muted);font-size:12px}
+.yr-row{display:grid;grid-template-columns:118px 1fr 92px;gap:10px;align-items:center;margin:10px 0;font-size:12px}
+.yr-row .yl b{display:block;font-size:13px}
+.yr-bar{position:relative;height:22px;background:#F4F5FA;border-radius:6px}
+.yr-bar>div{height:100%;border-radius:6px}
+.yr-bar .mk{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--pink)}
+.yr-row .yv{text-align:right;font-weight:700;font-size:13px}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:var(--r-sm);font-size:13px}
+.verdict.bad{background:#FDEAF3;color:#8A0049}.verdict.good{background:#E6F6EF;color:#0B6B46}
+.lc{width:100%;height:auto;margin-top:6px}
+.lc-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.lc-leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.hset{display:flex;align-items:center;gap:8px}
+.hset input{width:70px;padding:6px 8px;text-align:right}
+@page{margin:10mm}
 @media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  input,select{padding:4px 6px!important;font-size:11px}
+  .mwrap .short{display:none}
+  .mwrap input{padding-right:6px!important}
+  .tw{overflow:visible}
+  table{font-size:11px}
+  th,td{padding:4px!important}
+  .bud-set input,.hset input{border:0;background:none;width:40px}
+  .scn-card,.card{break-inside:avoid}
+  .warnbox button{display:none}
   body{background:#fff;font-size:12px}
-  .top,.bf,.x,.add,.reset,.bud-set input{display:none!important}
+  .top,.bf,.x,.add,.reset{display:none!important}
   .block.locked{display:block}
-  .block{break-inside:avoid;border:1px solid #ccc}
+  .block{border:1px solid #ccc}
+  .bh{break-after:avoid}
+  th{min-width:0!important}
+  .stats,.stat,.kpis,.gap-row,.yr-row{break-inside:avoid}
   .need:not(.on){display:none}
   .kpi,.seg,.stat,tr.total td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   main{padding:0}
@@ -252,7 +289,7 @@ tr.total td{font-weight:700;background:var(--soft)}
     <div class="bh"><div class="num">2</div><div><h3>Người phụ thuộc</h3><p>Ai đang sống dựa vào thu nhập của khách hàng</p></div></div>
     <div class="bb">
       <div class="tw"><table>
-        <thead><tr><th>Quan hệ</th><th>Họ tên</th><th style="width:130px">Năm sinh</th><th style="min-width:130px">Mức phụ thuộc</th><th style="min-width:170px">Chi phí hỗ trợ/năm</th><th style="min-width:170px">Học phí/năm (con)</th><th></th></tr></thead>
+        <thead><tr><th style="min-width:120px">Quan hệ</th><th style="min-width:140px">Họ tên</th><th style="min-width:110px">Năm sinh</th><th style="min-width:130px">Mức phụ thuộc</th><th style="min-width:170px">Chi phí hỗ trợ/năm</th><th style="min-width:170px">Học phí/năm (con)</th><th></th></tr></thead>
         <tbody id="depBody"></tbody>
       </table></div>
       <button class="btn btn-line add" onclick="addDep()">+ Thêm người phụ thuộc</button>
@@ -276,6 +313,7 @@ tr.total td{font-weight:700;background:var(--soft)}
           <tbody>
             <tr><td class="lbl">Thu nhập chủ động <div class="hint">Lương, thưởng, thu nhập kinh doanh</div></td><td><input class="money" id="thuCD"></td><td class="yr" id="y-thuCD">–</td></tr>
             <tr><td class="lbl">Thu nhập thụ động <div class="hint">Lãi tiền gửi, cho thuê, cổ tức, vốn góp</div></td><td><input class="money" id="thuTD"></td><td class="yr" id="y-thuTD">–</td></tr>
+            <tr><td class="lbl">Thu nhập của vợ / chồng <div class="hint">Vẫn còn nếu KH gặp rủi ro</div></td><td><input class="money" id="thuVC"></td><td class="yr" id="y-thuVC">–</td></tr>
             <tr class="total"><td>Tổng thu nhập</td><td id="oTongThuM" style="text-align:right">0</td><td class="yr" id="oTongThu">0</td></tr>
             <tr><td class="lbl">Sinh hoạt thiết yếu <div class="hint">Ăn ở, đi lại, y tế</div></td><td><input class="money" id="chiTY"></td><td class="yr" id="y-chiTY">–</td></tr>
             <tr><td class="lbl">Giáo dục con cái</td><td><input class="money" id="chiGD"></td><td class="yr" id="y-chiGD">–</td></tr>
@@ -287,6 +325,7 @@ tr.total td{font-weight:700;background:var(--soft)}
         </table></div>
         <div class="donut-wrap" id="cfDonut"></div>
       </div>
+      <div class="warnbox" id="cfWarn"></div>
       <div class="stats" id="cfStats"></div>
     </div>
     <div class="bf"><span class="err"></span><span class="done-tag">✓ Đã hoàn thành</span><button class="btn btn-primary next">Tiếp tục</button></div>
@@ -320,7 +359,7 @@ tr.total td{font-weight:700;background:var(--soft)}
 
       <div class="sub">Hợp đồng bảo hiểm KH đang có (chỉ tính cho KH)</div>
       <div class="tw"><table>
-        <thead><tr><th>Sản phẩm</th><th>Công ty</th><th style="min-width:170px">STBH sản phẩm chính</th><th style="min-width:170px">STBH bệnh lý nghiêm trọng</th><th style="min-width:160px">HSCR (đồng/ngày)</th><th></th></tr></thead>
+        <thead><tr><th style="min-width:130px">Sản phẩm</th><th style="min-width:120px">Công ty</th><th style="min-width:170px">STBH sản phẩm chính</th><th style="min-width:170px">STBH bệnh lý nghiêm trọng</th><th style="min-width:160px">HSCR (đồng/ngày)</th><th></th></tr></thead>
         <tbody id="exBody"></tbody>
       </table></div>
       <button class="btn btn-line add" onclick="addEx()">+ Thêm hợp đồng</button>
@@ -332,14 +371,14 @@ tr.total td{font-weight:700;background:var(--soft)}
   <!-- 7. NHU CẦU -->
   <section class="block locked" data-step="Nhu cầu">
     <div class="bh"><div class="num">6</div><div><h3>Chọn nhóm nhu cầu bảo hiểm</h3><p>Các nhóm có nhãn “Gợi ý” khớp với mục tiêu hoặc tình hình tài chính của KH. Số liệu tự lấy từ các bước trước, IC có thể sửa.</p></div></div>
-    <div class="bb"><div class="needs" id="needGrid"></div></div>
+    <div class="bb"><div class="warnbox" id="needWarn" style="margin:0 0 16px"></div><div class="needs" id="needGrid"></div></div>
     <div class="bf"><span class="err"></span><span class="done-tag">✓ Đã hoàn thành</span><button class="btn btn-primary next">Xem kết quả</button></div>
   </section>
 
   <!-- 8. KẾT QUẢ -->
   <section class="block locked" data-step="Kết quả" id="resultBlock">
     <div class="bh"><div class="num">7</div><div><h3>Kết quả phân tích cho IC</h3><p id="resSub">STBH còn thiếu sau khi trừ bảo hiểm đang có, và ngân sách phí tối đa</p></div></div>
-    <div class="bb"><div class="bud-set" style="margin:0 0 16px">Điều kiện phí tối đa: <label><input type="number" id="pctThu" value="30" min="0" max="100"> % tổng thu nhập</label><label><input type="number" id="pctTK" value="10" min="0" max="100"> % tiết kiệm/năm</label></div><div id="results"></div></div>
+    <div class="bb"><div class="bud-set" style="margin:0 0 16px">Điều kiện phí tối đa: <label><input type="number" id="pctThu" value="30" min="0" max="100"> % tổng thu nhập</label><label><input type="number" id="pctTK" value="10" min="0" max="100"> % tiết kiệm/năm</label><span class="hset">· Số năm gia đình cần được đảm bảo <input type="number" id="yrsH" min="1" max="40" data-auto="1"> năm</span></div><div id="results"></div></div>
   </section>
 </main>
 
@@ -478,8 +517,9 @@ function readData(){
   d.deps.forEach((x,i)=>{x.age=x.yob>1900&&x.yob<=cy?cy-x.yob:0;const t=$$('#depBody tr')[i].querySelector('.dep-agetxt');if(t)t.textContent=x.yob>1900&&x.yob<=cy?x.age+' tuổi':''});
   d.edu=d.deps.filter(x=>x.rel==='Con').map(c=>{const y=Math.max(0,d.tuLap-c.age);return{...c,years:y,total:c.edu*y}});
   d.eduTotal=d.edu.reduce((s,c)=>s+c.total,0);
-  ['thuCD','thuTD','chiTY','chiGD','chiGT','chiNo','chiKhac'].forEach(k=>{d[k]=mv(k)*12;const y=document.getElementById('y-'+k);if(y)y.textContent=d[k]?fmt(d[k]):'–'});
-  d.tongThu=d.thuCD+d.thuTD; d.tongChi=d.chiTY+d.chiGD+d.chiGT+d.chiNo+d.chiKhac; d.thangDu=d.tongThu-d.tongChi;
+  d.eduYear=d.edu.filter(c=>c.years>0).reduce((s,c)=>s+c.edu,0);
+  ['thuCD','thuTD','thuVC','chiTY','chiGD','chiGT','chiNo','chiKhac'].forEach(k=>{d[k]=mv(k)*12;const y=document.getElementById('y-'+k);if(y)y.textContent=d[k]?fmt(d[k]):'–'});
+  d.tongThu=d.thuCD+d.thuTD+d.thuVC; d.tongChi=d.chiTY+d.chiGD+d.chiGT+d.chiNo+d.chiKhac; d.thangDu=d.tongThu-d.tongChi;
   d.assets={};ASSETS.forEach(([k])=>d.assets[k]=val($(`.ts-mb[data-k="${k}"]`))+val($(`.ts-kh[data-k="${k}"]`)));
   d.tsMb=$$('.ts-mb').reduce((s,e)=>s+val(e),0); d.tsKh=$$('.ts-kh').reduce((s,e)=>s+val(e),0); d.tongTS=d.tsMb+d.tsKh;
   d.nvMb=$$('.nv-mb').reduce((s,e)=>s+val(e),0); d.nvKh=$$('.nv-kh').reduce((s,e)=>s+val(e),0); d.tongNo=d.nvMb+d.nvKh;
@@ -573,7 +613,19 @@ function recalc(){
   $('#assetMix').innerHTML=d.tongTS?`<h4>Cơ cấu tài sản</h4><p class="cd">Thanh khoản gồm tiền mặt, tiền gửi, cổ phiếu, trái phiếu, quỹ. Tài sản càng dồn vào BĐS, gia đình càng dễ phải bán tài sản khi có rủi ro.</p>
      <div class="stack" style="height:30px">${ASSETS.map(([k,l],i)=>d.assets[k]?`<div class="seg" title="${l}: ${short(d.assets[k])}" style="width:${d.assets[k]/d.tongTS*100}%;background:${['#2B2EDB','#1E9BFF','#7B4DDB','#00A3A3','#10A36A','#E69A00','#E4007C','#F0339A','#A0A6C8'][i]}">${d.assets[k]/d.tongTS>.08?Math.round(d.assets[k]/d.tongTS*100)+'%':''}</div>`:'').join('')}</div>
      ${legend(ASSETS.map(([k,l],i)=>({l,v:d.assets[k],c:['#2B2EDB','#1E9BFF','#7B4DDB','#00A3A3','#10A36A','#E69A00','#E4007C','#F0339A','#A0A6C8'][i]})).filter(x=>x.v))}`:`<div class="empty">Nhập tài sản để xem cơ cấu</div>`;
+  // cash-flow warning: tuition mismatch
+  const cw=$('#cfWarn');let cwh='';
+  if(d.eduYear>0&&Math.abs(d.eduYear-d.chiGD)>d.eduYear*0.1)
+    cwh+=`<div>Học phí ở bước 2 là <b>${short(d.eduYear)}/năm</b> nhưng dòng “Giáo dục con cái” đang là <b>${short(d.chiGD)}/năm</b>. Chi phí bị tính lệch làm sai thặng dư và ngân sách phí.<button data-fix="edu">Lấy theo bước 2 (${short(d.eduYear/12)}/tháng)</button></div>`;
+  if(!d.thuVC&&radio('hn')==='Kết hôn')cwh+=`<div>KH đã kết hôn: hỏi thêm thu nhập của vợ/chồng — khoản này quyết định gia đình tự trụ được bao lâu nếu KH gặp rủi ro.</div>`;
+  cw.innerHTML=cwh;cw.classList.toggle('show',!!cwh);
   const needs=calcNeeds(d);
+  // goal vs need warning
+  const GW={2:['thunhap','taisan'],5:['hocvan'],6:['huutri'],7:['thuake']};
+  const miss=Object.entries(GW).filter(([g,ids])=>d.goals.includes(+g)&&!ids.some(id=>$(`.need[data-need="${id}"] .need-on`).checked));
+  d.goalMiss=miss.map(([g,ids])=>({goal:GOALS[g],need:ids.map(id=>NEEDS.find(n=>n.id===id).name).join(' hoặc ')}));
+  const nw=$('#needWarn');nw.innerHTML=d.goalMiss.map(m=>`<div>KH chọn mục tiêu <b>${m.goal}</b> nhưng chưa tick nhóm <b>${m.need}</b>.</div>`).join('');
+  nw.classList.toggle('show',d.goalMiss.length>0);
   renderResults(d,needs);
 }
 
@@ -617,6 +669,47 @@ function renderResults(d,needs){
   if(huu)ins.push({c:'',t:`Quỹ hưu trí mục tiêu ${short(huu)} tại tuổi ${d.tuoiHuu} — dùng làm mục tiêu giá trị hoàn lại khi thiết kế UL.`});
   if(cap)ins.push({c:'',t:`Phí tối đa ${short(cap)}/năm (≈ ${short(cap/12)}/tháng), bị giới hạn bởi điều kiện ${capBy==='tk'?'tiết kiệm':'thu nhập'}.`});
 
+  // ----- risk scenarios -----
+  const hEl=$('#yrsH');
+  const autoH=d.edu.length?Math.max(1,...d.edu.map(c=>c.years)):(needs.find(n=>n.id==='thunhap')?(parseFloat($('[data-n="thunhap"][data-k="nam"]').value)||5):10);
+  if(hEl.dataset.auto==='1')hEl.value=autoH;
+  const H=Math.max(1,Math.min(40,parseInt(hEl.value)||autoH));
+  const inc=d.thuTD+d.thuVC;
+  const needY=y=>d.chiTY+d.edu.filter(c=>c.years>=y).reduce((s,c)=>s+c.edu,0);
+  let short0=0;for(let y=1;y<=H;y++)short0+=Math.max(0,needY(y)-inc);
+  const req=Math.max(0,d.tongNo+short0-d.liquid);
+  const sim=lump=>{let bal=lump+d.liquid,dp=0;if(bal>=d.tongNo)bal-=d.tongNo;else dp=d.chiNo;
+    const pts=[bal];let yrs=null;for(let y=1;y<=40;y++){const net=needY(y)+dp-inc,prev=bal;bal-=net;pts.push(bal);
+      if(yrs===null&&bal<0)yrs=Math.max(0,y-1+(net>0?prev/net:0));}
+    return{pts,yrs:yrs===null?Infinity:yrs}};
+  const scen=[
+    {id:'death',t:'Nếu KH qua đời',sub:'Gia đình nhận STBH sản phẩm chính',ex:d.ex.chinh,pr:tot.chinh},
+    {id:'ci',t:'Nếu KH bệnh nặng, không lao động được',sub:'KH nhận STBH bệnh lý nghiêm trọng (HSCR chỉ trả khi nằm viện)',ex:d.ex.blnt,pr:tot.blnt}
+  ].map(sc=>{sc.cases=[{l:'Hiện tại',lump:sc.ex,c:'#A0A6C8'},{l:'Theo đề xuất',lump:sc.pr,c:'#2B2EDB'},{l:'Cần có',lump:req,c:'#10A36A'}].map(c=>({...c,...sim(c.lump)}));return sc});
+  const yTxt=y=>y===Infinity?'Lâu dài':(y<1?(y*12).toFixed(0)+' tháng':y.toFixed(1).replace('.0','').replace('.',',')+' năm');
+  const lineChart=sc=>{const X=Math.min(40,Math.max(H+3,6)),W=640,Hh=210,L=58,Bt=26,T=12,Rr=12;
+    const vals=sc.cases.flatMap(c=>c.pts.slice(0,X+1));const mx=Math.max(1,...vals);
+    const xs=i=>L+(W-L-Rr)*i/X,ys=v=>T+(Hh-T-Bt)*(1-Math.max(0,v)/mx);
+    const lines=sc.cases.map(c=>`<polyline fill="none" stroke="${c.c}" stroke-width="${c.l==='Theo đề xuất'?3:2}" ${c.l==='Cần có'?'stroke-dasharray="6 4"':''} points="${c.pts.slice(0,X+1).map((v,i)=>xs(i)+','+ys(v)).join(' ')}"/>`).join('');
+    const yt=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-Rr}" y1="${ys(mx*f)}" y2="${ys(mx*f)}" stroke="#E0E4F2"/><text x="${L-6}" y="${ys(mx*f)+4}" text-anchor="end" font-size="10" fill="#646B8F">${short(mx*f)}</text>`).join('');
+    const st=Math.ceil(X/8);let xt='';for(let i=0;i<=X;i+=st)xt+=`<text x="${xs(i)}" y="${Hh-8}" text-anchor="middle" font-size="10" fill="#646B8F">${i}</text>`;
+    return `<svg class="lc" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Số dư quỹ gia đình theo năm">${yt}${xt}
+      <line x1="${xs(H)}" x2="${xs(H)}" y1="${T}" y2="${Hh-Bt}" stroke="#E4007C" stroke-dasharray="4 4"/><text x="${xs(H)+4}" y="${T+10}" font-size="10" fill="#E4007C">Mốc ${H} năm</text>${lines}
+      <text x="${W-Rr}" y="${Hh-8}" text-anchor="end" font-size="10" fill="#646B8F">năm</text></svg>
+      <div class="lc-leg">${sc.cases.map(c=>`<span><i style="background:${c.c}"></i>${c.l}</span>`).join('')}<span>Số dư quỹ gia đình theo năm</span></div>`};
+  const scCard=sc=>{const fin=sc.cases.map(c=>c.yrs).filter(y=>y!==Infinity);const S=Math.max(H,...fin.map(y=>Math.min(y,40)))*1.12||1;
+    const p=sc.cases[1];const ok=p.yrs>=H;
+    return `<div class="scn-card"><h5>${sc.t}</h5><p class="cd">${sc.sub}</p>
+      ${sc.cases.map(c=>`<div class="yr-row"><div class="yl"><b>${c.l}</b>${short(c.lump)}</div><div class="yr-bar"><div style="width:${Math.min(100,(c.yrs===Infinity?S:c.yrs)/S*100)}%;background:${c.c}"></div><div class="mk" style="left:${H/S*100}%"></div></div><div class="yv">${yTxt(c.yrs)}</div></div>`).join('')}
+      ${lineChart(sc)}
+      <div class="verdict ${ok?'good':'bad'}">${ok?`Theo đề xuất, gia đình trụ được ${yTxt(p.yrs)} — đủ mốc ${H} năm.`:`Theo đề xuất, gia đình chỉ trụ được <b>${yTxt(p.yrs)}</b> / cần ${H} năm. Cần thêm khoảng <b>${short(Math.max(0,req-sc.pr))}</b> (tổng ${short(req)}).`}</div></div>`};
+  const scnHtml=`<div class="card"><h4>Kịch bản rủi ro: gia đình trụ được bao lâu?</h4>
+    <p class="cd">Giả định: tiền bảo hiểm cộng tài sản thanh khoản (${short(d.liquid)}) dùng trả hết nợ ${short(d.tongNo)} trước. Sau đó mỗi năm gia đình chi sinh hoạt thiết yếu ${short(d.chiTY)} và học phí của con còn đi học, bù lại bằng thu nhập thụ động và thu nhập vợ/chồng (${short(inc)}/năm). Không tính bán BĐS, lãi suất, lạm phát và chi phí điều trị.</p>
+    <div class="scn">${scen.map(scCard).join('')}</div></div>`;
+  scen.forEach(sc=>{const p=sc.cases[1];if(p.yrs<H)ins.unshift({c:'warn',t:`${sc.t}: theo đề xuất gia đình chỉ trụ được <b>${yTxt(p.yrs)}</b> trên ${H} năm cần đảm bảo.`})});
+  (d.goalMiss||[]).forEach(m=>ins.push({c:'warn',t:`KH chọn mục tiêu <b>${m.goal}</b> nhưng chưa tick nhóm <b>${m.need}</b>.`}));
+  if(d.eduYear>0&&Math.abs(d.eduYear-d.chiGD)>d.eduYear*0.1)ins.push({c:'warn',t:`Học phí ở bước 2 (${short(d.eduYear)}/năm) lệch với dòng tiền (${short(d.chiGD)}/năm) — thặng dư và ngân sách phí có thể đang sai.`});
+
   R.innerHTML=`
    <div class="kpis">${kpi('chinh','STBH chính')}${kpi('blnt','STBH bệnh lý nghiêm trọng')}${kpi('hscr','HSCR')}
      <div class="kpi budget"><div><div class="kk">Phí bảo hiểm tối đa/năm</div><div class="kv">${short(cap)}</div><div class="ks">≈ ${short(cap/12)}/tháng · ${d.tongThu?(cap/d.tongThu*100).toFixed(1).replace('.',','):0}% thu nhập</div></div></div></div>
@@ -624,6 +717,8 @@ function renderResults(d,needs){
    <div class="card"><h4>Nhu cầu, đã có và còn thiếu</h4><p class="cd">Mỗi thanh là toàn bộ nhu cầu của KH. Phần sọc hồng là khoảng trống IC cần thiết kế thêm.</p>
      ${TYPES.map(([k,l,u])=>gapRow(k,l,u)).join('')}
      <div class="gap-legend"><span><i style="background:var(--green)"></i>Đã có</span><span><i style="background:var(--pink)"></i>Còn thiếu</span><span><i style="background:#8F97C8"></i>Thừa so với nhu cầu</span></div></div>
+
+   ${scnHtml}
 
    <div class="cols">
      <div class="card"><h4>Nhu cầu đến từ đâu</h4><p class="cd">Tỷ trọng từng nhóm nhu cầu trong tổng STBH (cộng dồn).</p>
@@ -668,6 +763,7 @@ function validate(i){
 document.addEventListener('click',e=>{
   const nb=e.target.closest('.next');if(nb){const i=$$('.block').indexOf(nb.closest('.block'));
     if(validate(i)){nb.closest('.block').classList.add('done');recalc();unlock(i+1,true)}}
+  const fx=e.target.closest('[data-fix="edu"]');if(fx){const dd=readData();setMoney($('#chiGD'),Math.ceil(dd.eduYear/12/1000)*1000);recalc();return}
   const rs=e.target.closest('.reset');if(rs){e.preventDefault();const [n,k]=rs.dataset.reset.split('.');
     $(`[data-n="${n}"][data-k="${k}"]`).dataset.auto='1';recalc()}
 });
@@ -693,7 +789,7 @@ function fillSample(){
   addDep({rel:'Con',name:'Minh',yob:new Date().getFullYear()-14,lvl:'Hoàn toàn',sup:60000000,edu:100000000});
   addDep({rel:'Con',name:'An',yob:new Date().getFullYear()-8,lvl:'Hoàn toàn',sup:60000000,edu:100000000});
   addDep({rel:'Mẹ',name:'',yob:new Date().getFullYear()-65,lvl:'Một phần',sup:60000000});
-  setId('thuCD',100000000);setId('thuTD',25000000);setId('chiTY',35000000);setId('chiGD',17000000);setId('chiGT',12500000);setId('chiNo',12500000);
+  setId('thuCD',100000000);setId('thuTD',25000000);setId('thuVC',20000000);setId('chiTY',35000000);setId('chiGD',17000000);setId('chiGT',12500000);setId('chiNo',12500000);
   const A={casa:[500e6,0],tgkh:[2e9,1e9],cp:[0,1e9],quy:[500e6,0],von:[0,3e9],bdso:[0,6e9],bdsdt:[0,4e9]};
   Object.entries(A).forEach(([k,[a,b]])=>{setMoney($(`.ts-mb[data-k="${k}"]`),a);setMoney($(`.ts-kh[data-k="${k}"]`),b)});
   setMoney($('.nv-mb[data-k="thechap"]'),3e9);
@@ -709,7 +805,7 @@ function fillSample(){
 function resetAll(silent){
   if(!silent&&!confirm('Xóa toàn bộ dữ liệu và làm phiếu mới?'))return;
   $$('#app input').forEach(el=>{if(el.type==='checkbox'||el.type==='radio')el.checked=false;else if(!el.readOnly)el.value='';el.classList.remove('bad')});
-  $('#pctThu').value=30;$('#pctTK').value=10;$('#tuoiTuLap').value=22;
+  $('#pctThu').value=30;$('#pctTK').value=10;$('#yrsH').dataset.auto='1';$('#tuoiTuLap').value=22;
   $('#depBody').innerHTML='';$('#exBody').innerHTML='';
   $$('.need-on[disabled]').forEach(e=>e.checked=true);
   $$('.need-b select').forEach(e=>e.selectedIndex=0);
