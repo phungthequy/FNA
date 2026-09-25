@@ -226,7 +226,7 @@ tr.total td{font-weight:700;background:var(--soft)}
   table{font-size:11px}
   th,td{padding:4px!important}
   .bud-set input,.hset input{border:0;background:none;width:40px}
-  .scn-card,.card{break-inside:avoid}
+  .scn-card,.gap-row{break-inside:avoid}
   .warnbox button{display:none}
   body{background:#fff;font-size:12px}
   .top,.bf,.x,.add,.reset{display:none!important}
@@ -289,7 +289,7 @@ tr.total td{font-weight:700;background:var(--soft)}
     <div class="bh"><div class="num">2</div><div><h3>Người phụ thuộc</h3><p>Ai đang sống dựa vào thu nhập của khách hàng</p></div></div>
     <div class="bb">
       <div class="tw"><table>
-        <thead><tr><th style="min-width:120px">Quan hệ</th><th style="min-width:140px">Họ tên</th><th style="min-width:110px">Năm sinh</th><th style="min-width:130px">Mức phụ thuộc</th><th style="min-width:170px">Chi phí hỗ trợ/năm</th><th style="min-width:170px">Học phí/năm (con)</th><th></th></tr></thead>
+        <thead><tr><th style="min-width:135px">Quan hệ</th><th style="min-width:140px">Họ tên</th><th style="min-width:110px">Năm sinh</th><th style="min-width:140px">Mức phụ thuộc</th><th style="min-width:170px">Chi phí hỗ trợ/năm</th><th style="min-width:170px">Học phí/năm (con)</th><th></th></tr></thead>
         <tbody id="depBody"></tbody>
       </table></div>
       <button class="btn btn-line add" onclick="addDep()">+ Thêm người phụ thuộc</button>
@@ -309,7 +309,7 @@ tr.total td{font-weight:700;background:var(--soft)}
     <div class="bb">
       <div class="two">
         <div class="tw"><table>
-          <thead><tr><th>Khoản mục</th><th style="min-width:190px">Mỗi tháng (triệu đồng)</th><th class="yr" style="min-width:120px">Mỗi năm (triệu đồng)</th></tr></thead>
+          <thead><tr><th>Khoản mục</th><th style="min-width:190px">Mỗi tháng (triệu đồng)</th><th class="yr" style="min-width:120px">Mỗi năm</th></tr></thead>
           <tbody>
             <tr><td class="lbl">Thu nhập chủ động <div class="hint">Lương, thưởng, thu nhập kinh doanh</div></td><td><input class="money" id="thuCD"></td><td class="yr" id="y-thuCD">–</td></tr>
             <tr><td class="lbl">Thu nhập thụ động <div class="hint">Lãi tiền gửi, cho thuê, cổ tức, vốn góp</div></td><td><input class="money" id="thuTD"></td><td class="yr" id="y-thuTD">–</td></tr>
@@ -392,28 +392,31 @@ const GOAL_MAP={0:['suckhoe','taisan'],1:['suckhoe'],2:['thunhap','taisan'],3:['
 const PALETTE=['#2B2EDB','#1E9BFF','#F08A24','#10A36A','#E69A00','#7B4DDB','#00A3A3'];
 
 const NEEDS=[
- {id:'suckhoe',always:true,name:'Bảo vệ sức khỏe và thu nhập khi ốm đau',goal:'Khi KH mắc bệnh lý nghiêm trọng, cần đủ tiền trả nợ hoặc giữ vững tài chính. Khi nằm viện, HSCR bù chi phí thiết yếu mỗi ngày.',prod:['Bệnh lý nghiêm trọng','HSCR','Thẻ MR'],
-  params:[{k:'cachB',l:'STBH bệnh lý nghiêm trọng tính theo',t:'select',opts:[['no','Đủ trả hết dư nợ'],['tc','Mức KH muốn bảo vệ']]},
-   {k:'noB',l:'Tổng dư nợ cần trả',t:'money',auto:d=>d.tongNo,show:p=>p.cachB!=='tc'},
-   {k:'tc',l:'Số tiền KH muốn bảo vệ tài chính (hỏi KH)',t:'money',show:p=>p.cachB==='tc'},
-   {k:'hscr',l:'HSCR – hỗ trợ mỗi ngày nằm viện',t:'money',auto:d=>roundUp(d.chiTY/12/30,100000)},
+ {id:'suckhoe',always:true,name:'Bảo vệ sức khỏe khi nằm viện',goal:'Khi KH nằm viện, HSCR bù chi phí thiết yếu mỗi ngày. Thẻ MR bảo lãnh viện phí.',prod:['HSCR','Thẻ MR'],
+  params:[{k:'hscr',l:'HSCR – hỗ trợ mỗi ngày nằm viện',t:'money',auto:d=>roundUp(d.chiTY/12/30,100000)},
    {k:'mr',l:'KH cần thẻ MR (bảo lãnh viện phí)',t:'check'}],
-  calc:(p,d)=>({blnt:p.cachB==='tc'?p.tc:p.noB,hscr:p.hscr,mr:p.mr,
-   hint:(p.cachB==='tc'&&!p.tc?'<b style="color:var(--pink)">Cần hỏi KH số tiền muốn bảo vệ tài chính khi mắc bệnh lý nghiêm trọng.</b><br>':'')+
-        (p.cachB!=='tc'&&!d.tongNo?'<b style="color:var(--pink)">KH không có nợ vay — chuyển sang “Mức KH muốn bảo vệ” và hỏi KH.</b><br>':'')+
-        `Chi phí thiết yếu ${short(d.chiTY/12)}/tháng ÷ 30 ≈ ${fmt(d.chiTY/12/30)} triệu/ngày`}),
-  fm:'BLNT = Tổng dư nợ, hoặc số tiền KH muốn bảo vệ tài chính (+ phần Bảo vệ thu nhập nếu có chọn) · HSCR = Chi phí thiết yếu/tháng ÷ 30 (làm tròn lên 0,1 triệu)'},
+  calc:(p,d)=>({hscr:p.hscr,mr:p.mr,hint:`Chi phí thiết yếu ${short(d.chiTY/12)}/tháng ÷ 30 ≈ ${fmt(d.chiTY/12/30)} triệu/ngày`}),
+  fm:'HSCR = Chi phí thiết yếu/tháng ÷ 30 (làm tròn lên 0,1 triệu). HSCR chỉ trả khi nằm viện.'},
  {id:'vay',name:'Bảo vệ khoản vay',goal:'Khi rủi ro xấu nhất xảy ra, STBH bù đắp khoản vay — không ảnh hưởng tài sản thế chấp và cuộc sống gia đình.',prod:['Sản phẩm chính'],
   params:[{k:'no',l:'Dư nợ cần bảo vệ',t:'money',auto:d=>d.tongNo}],
   calc:p=>({chinh:p.no}),fm:'STBH chính = Dư nợ cần bảo vệ'},
- {id:'taisan',name:'Bảo vệ tài chính (tài sản)',goal:'Khi trụ cột gia đình gặp rủi ro, gia đình có quỹ chi tiêu mà không phải bán tài sản.',prod:['Sản phẩm chính'],
-  params:[{k:'chi',l:'Chi phí gia đình/năm',t:'money',auto:d=>d.tongChi},{k:'nam',l:'Số năm cần duy trì',t:'num',def:3,u:'năm'}],
-  calc:p=>({chinh:p.chi*p.nam}),fm:'STBH chính = Chi phí gia đình/năm × Số năm'},
- {id:'thunhap',name:'Bảo vệ thu nhập',goal:'Khi KH mất đi hoặc mắc bệnh nặng phải nghỉ ở nhà (HSCR không chi trả), gia đình vẫn đủ tiền học, điện nước, ăn uống, đi lại trong số năm KH mong muốn.',prod:['Sản phẩm chính','Bệnh lý nghiêm trọng'],
-  params:[{k:'chi',l:'Chi phí cơ bản/năm (thiết yếu + học phí)',t:'money',auto:d=>d.chiTY+d.chiGD},{k:'nam',l:'Số năm KH mong muốn bảo vệ thu nhập',t:'num',def:5,u:'năm'}],
-  calc:p=>({chinh:p.chi*p.nam,blnt:p.chi*p.nam}),fm:'Thu nhập cần bảo vệ = Chi phí cơ bản/năm × Số năm. Cộng vào cả STBH chính (tử vong) và STBH bệnh lý nghiêm trọng (bệnh nặng, không có thu nhập).'},
- {id:'hocvan',name:'Bảo vệ quỹ học vấn',goal:'Khi trụ cột gia đình gặp rủi ro, kế hoạch học vấn của con vẫn giữ nguyên.',prod:['Sản phẩm chính'],
-  params:[],calc:(p,d)=>({chinh:d.eduTotal}),fm:'STBH chính = Σ Học phí/năm × (Tuổi tự lập − Tuổi con)'},
+ {id:'taisan',name:'Bảo vệ tài chính (tài sản)',goal:'KH qua đời: gia đình có quỹ chi tiêu, không phải bán tài sản. KH bệnh nặng: đủ tiền chữa bệnh, trả nợ và lo chi phí thiết yếu.',prod:['Sản phẩm chính','Bệnh lý nghiêm trọng'],
+  params:[{k:'chi',l:'Chi phí gia đình/năm',t:'money',auto:d=>d.tongChi},{k:'nam',l:'Số năm cần duy trì khi KH qua đời',t:'num',def:3,u:'năm'},
+   {k:'dt',l:'Chi phí chữa bệnh nặng dự kiến (hỏi KH)',t:'money'},
+   {k:'no',l:'Dư nợ cần trả',t:'money',auto:d=>d.tongNo},
+   {k:'ty',l:'Chi phí thiết yếu/năm',t:'money',auto:d=>d.chiTY},
+   {k:'namB',l:'Số năm cần lo chi phí thiết yếu khi bệnh nặng (hỏi KH)',t:'num',def:3,u:'năm'}],
+  calc:p=>({chinh:p.chi*p.nam,blnt:p.dt+p.no+p.ty*p.namB,
+   hint:(p.dt?'':'<b style="color:var(--pink)">Cần hỏi KH chi phí chữa bệnh dự kiến.</b><br>')+`BLNT = Chữa bệnh ${short(p.dt)} + Trả nợ ${short(p.no)} + Thiết yếu ${short(p.ty)} × ${p.namB} năm (${short(p.ty*p.namB)})`}),
+  fm:'STBH chính = Chi phí gia đình/năm × Số năm · BLNT = Chữa bệnh + Trả nợ + Chi phí thiết yếu/năm × Số năm'},
+ {id:'thunhap',name:'Bảo vệ thu nhập',goal:'KH qua đời: gia đình đủ chi phí cơ bản. KH bệnh nặng không đi làm được: vẫn đảm bảo được thu nhập trong số năm KH mong muốn.',prod:['Sản phẩm chính','Bệnh lý nghiêm trọng'],
+  params:[{k:'chi',l:'Chi phí cơ bản/năm (thiết yếu + học phí)',t:'money',auto:d=>d.chiTY+d.chiGD},{k:'nam',l:'Số năm bảo vệ khi KH qua đời',t:'num',def:5,u:'năm'},
+   {k:'tn',l:'Thu nhập cần đảm bảo/năm khi bệnh nặng',t:'money',auto:d=>d.thuCD},
+   {k:'namB',l:'Số năm KH muốn đảm bảo thu nhập khi bệnh nặng (hỏi KH)',t:'num',def:5,u:'năm'}],
+  calc:p=>({chinh:p.chi*p.nam,blnt:p.tn*p.namB,hint:`BLNT = Thu nhập ${short(p.tn)}/năm × ${p.namB} năm`}),
+  fm:'STBH chính = Chi phí cơ bản/năm × Số năm · BLNT = Thu nhập cần đảm bảo/năm × Số năm'},
+ {id:'hocvan',name:'Bảo vệ quỹ học vấn',goal:'Khi trụ cột gia đình qua đời hoặc bệnh nặng không đi làm được, kế hoạch học vấn của con vẫn giữ nguyên.',prod:['Sản phẩm chính','Bệnh lý nghiêm trọng'],
+  params:[],calc:(p,d)=>({chinh:d.eduTotal,blnt:d.eduTotal}),fm:'Quỹ học vấn = Σ Học phí/năm × (Tuổi tự lập − Tuổi con). Cộng vào cả STBH chính (KH qua đời) và STBH bệnh lý nghiêm trọng (KH bệnh nặng).'},
  {id:'huutri',name:'Bảo vệ quỹ hưu trí',goal:'Đến tuổi hưu, giá trị hoàn lại của hợp đồng là khoản KH rút ra chi tiêu hằng ngày.',prod:['Giá trị hoàn lại'],
   params:[{k:'chi',l:'Chi phí sinh hoạt mong muốn/năm sau hưu',t:'money',auto:d=>d.chiTY},{k:'tho',l:'Tuổi thọ dự kiến',t:'num',def:80,u:'tuổi'},{k:'co',l:'Nguồn đã có (BHXH, tiết kiệm hưu trí…)',t:'money'}],
   calc:(p,d)=>({huu:Math.max(0,p.chi*Math.max(0,p.tho-d.tuoiHuu)-p.co)}),fm:'Quỹ hưu trí = Chi phí/năm × (Tuổi thọ − Tuổi hưu) − Nguồn đã có. Không cộng vào STBH, dùng làm mục tiêu giá trị hoàn lại.'},
@@ -428,7 +431,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const val=el=>el?Math.round((parseFloat(String(el.value).replace(/\./g,'').replace(',','.'))||0)*1e6):0;
 const mv=id=>val(document.getElementById(id));
 const fmt=n=>(Math.round(n/1e4)/100).toLocaleString('vi-VN',{maximumFractionDigits:2});
-function short(n){return fmt(n)+' triệu';}
+function short(n){if(!n)return '0';return Math.abs(n)>=1e9?(Math.round(n/1e7)/100).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':fmt(n)+' triệu';}
 function trim(x){let t=x>=100?x.toFixed(0):x>=10?x.toFixed(1):x.toFixed(2);if(t.includes('.'))t=t.replace(/\.?0+$/,'');return t.replace('.',',');}
 function roundUp(n,step){return n>0?Math.ceil(n/step)*step:0}
 function setMoney(el,n){el.value=n?fmt(n):'';updShort(el)}
@@ -480,9 +483,9 @@ function findParam(el){return NEEDS.find(n=>n.id===el.dataset.n).params.find(p=>
 
 function addDep(d={}){
   const tr=document.createElement('tr');
-  tr.innerHTML=`<td><select class="dep-rel">${['Vợ / chồng','Con','Cha','Mẹ','Khác'].map(r=>`<option ${d.rel===r?'selected':''}>${r}</option>`).join('')}</select></td>
+  tr.innerHTML=`<td><select class="dep-rel">${['Vợ / chồng','Con','Cha','Mẹ','Khác'].map(r=>`<option ${(d.rel||'Con')===r?'selected':''}>${r}</option>`).join('')}</select></td>
    <td><input type="text" class="dep-name" value="${d.name||''}"></td>
-   <td><input type="number" class="dep-yob" min="1920" max="${new Date().getFullYear()}" placeholder="VD: 2012" value="${d.yob??''}"><div class="hint dep-agetxt"></div></td>
+   <td><input type="number" class="dep-yob" min="1920" max="${new Date().getFullYear()}" placeholder="2012" value="${d.yob??''}"><div class="hint dep-agetxt"></div></td>
    <td><select class="dep-lvl"><option ${d.lvl==='Hoàn toàn'?'selected':''}>Hoàn toàn</option><option ${d.lvl==='Một phần'?'selected':''}>Một phần</option></select></td>
    <td><input class="money dep-sup"></td><td><input class="money dep-edu"></td>
    <td><button class="x" title="Xóa" onclick="this.closest('tr').remove();recalc()">×</button></td>`;
@@ -516,7 +519,7 @@ function readData(){
   d.edu=d.deps.filter(x=>x.rel==='Con').map(c=>{const y=Math.max(0,d.tuLap-c.age);return{...c,years:y,total:c.edu*y}});
   d.eduTotal=d.edu.reduce((s,c)=>s+c.total,0);
   d.eduYear=d.edu.filter(c=>c.years>0).reduce((s,c)=>s+c.edu,0);
-  ['thuCD','thuTD','thuVC','chiTY','chiGD','chiGT','chiNo','chiKhac'].forEach(k=>{d[k]=mv(k)*12;const y=document.getElementById('y-'+k);if(y)y.textContent=d[k]?fmt(d[k]):'–'});
+  ['thuCD','thuTD','thuVC','chiTY','chiGD','chiGT','chiNo','chiKhac'].forEach(k=>{d[k]=mv(k)*12;const y=document.getElementById('y-'+k);if(y)y.textContent=d[k]?short(d[k]):'–'});
   d.tongThu=d.thuCD+d.thuTD+d.thuVC; d.tongChi=d.chiTY+d.chiGD+d.chiGT+d.chiNo+d.chiKhac; d.thangDu=d.tongThu-d.tongChi;
   d.assets={};ASSETS.forEach(([k])=>d.assets[k]=val($(`.ts-mb[data-k="${k}"]`))+val($(`.ts-kh[data-k="${k}"]`)));
   d.tsMb=$$('.ts-mb').reduce((s,e)=>s+val(e),0); d.tsKh=$$('.ts-kh').reduce((s,e)=>s+val(e),0); d.tongTS=d.tsMb+d.tsKh;
@@ -550,7 +553,7 @@ function calcNeeds(d){
     if(n.id==='huutri'){const yrs=Math.max(1,d.tuoiHuu-d.tuoi);
       h=`<div class="row"><span>Quỹ hưu trí cần có tại tuổi ${d.tuoiHuu||'?'}</span><b>${short(r.huu)}</b></div>
          <div class="row"><span>Cần tích lũy thêm mỗi năm (${yrs} năm, chưa tính lãi)</span><b>${short(r.huu/yrs)}</b></div>`;}
-    else{TYPES.forEach(([k,l,u])=>{if(r[k])h+=`<div class="row"><span>${l}</span><b>${fmt(r[k])} ${u}</b></div>`});
+    else{TYPES.forEach(([k,l,u])=>{if(r[k])h+=`<div class="row"><span>${l}</span><b>${k==='hscr'?fmt(r[k])+' triệu/ngày':short(r[k])}</b></div>`});
       if(r.mr)h+=`<div class="row"><span>Thẻ MR</span><b>Có nhu cầu</b></div>`;
       if(r.hint)h+=`<div class="fm" style="color:var(--ink)">${r.hint}</div>`;
       if(!h)h=`<div class="row"><span>Chưa có số liệu để tính</span><b>–</b></div>`;}
@@ -594,7 +597,7 @@ function recalc(){
    <div class="stat"><div class="k">Phụ thuộc hoàn toàn / một phần</div><div class="v">${full} / ${d.deps.length-full}</div></div>
    <div class="stat"><div class="k">Tổng học phí còn phải lo</div><div class="v">${short(d.eduTotal)}</div></div>`;
   // cashflow
-  $('#oTongThu').textContent=fmt(d.tongThu);$('#oTongChi').textContent=fmt(d.tongChi);$('#oTongThuM').textContent=fmt(d.tongThu/12);$('#oTongChiM').textContent=fmt(d.tongChi/12);
+  $('#oTongThu').textContent=short(d.tongThu);$('#oTongChi').textContent=short(d.tongChi);$('#oTongThuM').textContent=short(d.tongThu/12);$('#oTongChiM').textContent=short(d.tongChi/12);
   const tdPct=d.tongThu?d.thangDu/d.tongThu:0;
   $('#cfStats').innerHTML=`<div class="stat"><div class="k">Tổng thu nhập/năm</div><div class="v">${short(d.tongThu)}</div><div class="hint">${short(d.tongThu/12)}/tháng</div></div>
    <div class="stat"><div class="k">Tổng chi phí/năm</div><div class="v">${short(d.tongChi)}</div><div class="hint">${short(d.tongChi/12)}/tháng</div></div>
@@ -603,7 +606,7 @@ function recalc(){
   const cfItems=[{l:'Sinh hoạt thiết yếu',v:d.chiTY,c:PALETTE[0]},{l:'Giáo dục con',v:d.chiGD,c:PALETTE[1]},{l:'Giải trí',v:d.chiGT,c:PALETTE[5]},{l:'Trả nợ vay',v:d.chiNo,c:PALETTE[4]},{l:'Khác',v:d.chiKhac,c:'#A0A6C8'},{l:'Thặng dư',v:Math.max(0,d.thangDu),c:PALETTE[3]}];
   $('#cfDonut').innerHTML=d.tongThu||d.tongChi?donut(cfItems,Math.max(d.tongThu,d.tongChi),Math.round(tdPct*100)+'%','thặng dư')+legend(cfItems.filter(i=>i.v>0)):`<div class="empty">Nhập thu nhập và chi phí để xem cơ cấu dòng tiền</div>`;
   // assets
-  $('#oTsMb').textContent=fmt(d.tsMb);$('#oTsKh').textContent=fmt(d.tsKh);$('#oNvMb').textContent=fmt(d.nvMb);$('#oNvKh').textContent=fmt(d.nvKh);
+  $('#oTsMb').textContent=short(d.tsMb);$('#oTsKh').textContent=short(d.tsKh);$('#oNvMb').textContent=short(d.nvMb);$('#oNvKh').textContent=short(d.nvKh);
   $('#nwStats').innerHTML=`<div class="stat"><div class="k">Tổng tài sản</div><div class="v">${short(d.tongTS)}</div></div>
    <div class="stat"><div class="k">Tổng nợ vay</div><div class="v">${short(d.tongNo)}</div></div>
    <div class="stat ${d.rong>=0?'pos':'neg'}"><div class="k">Tài sản ròng</div><div class="v">${short(d.rong)}</div></div>
@@ -648,7 +651,7 @@ function renderResults(d,needs){
     return `<div class="gap-row"><div class="gap-top"><span class="gn">${l}</span><span class="gs">Nhu cầu <b>${f(N)}</b> · ${miss?`còn thiếu <b style="color:var(--pink)">${f(miss)}</b>`:over?`thừa <b>${f(over)}</b>`:'đã đủ'}</span></div>
     <div class="track">${have?`<div class="seg have" style="width:${have/sc*100}%">${have/sc>.12?'Đã có '+f(have):''}</div>`:''}${miss?`<div class="seg miss" style="width:${miss/sc*100}%">${miss/sc>.12?'Thiếu '+f(miss):''}</div>`:''}${over?`<div class="seg over" style="width:${over/sc*100}%">${over/sc>.12?'Thừa '+f(over):''}</div>`:''}${!N&&!H?'<div style="padding:0 12px;font-size:12px;color:var(--muted);align-self:center">Không có nhu cầu</div>':''}</div></div>`};
 
-  const stackRow=(k,l)=>tot[k]?`<div class="stack-row"><div class="sl">${l}</div><div class="stack">${by[k].map(s=>`<div class="seg" title="${s.l}: ${fmt(s.v)}" style="width:${s.v/tot[k]*100}%;background:${s.c}">${s.v/tot[k]>.14?Math.round(s.v/tot[k]*100)+'%':''}</div>`).join('')}</div></div>`:'';
+  const stackRow=(k,l)=>tot[k]?`<div class="stack-row"><div class="sl">${l}</div><div class="stack">${by[k].map(s=>`<div class="seg" title="${s.l}: ${short(s.v)}" style="width:${s.v/tot[k]*100}%;background:${s.c}">${s.v/tot[k]>.14?Math.round(s.v/tot[k]*100)+'%':''}</div>`).join('')}</div></div>`:'';
   const usedNeeds=needs.filter(n=>n.r.chinh||n.r.blnt||n.r.hscr);
 
   // insights
@@ -657,7 +660,7 @@ function renderResults(d,needs){
   const gaps=TYPES.map(([k,l])=>({k,l,r:tot[k]?gap[k]/tot[k]:0})).filter(g=>g.r>0).sort((a,b)=>b.r-a.r);
   if(gaps.length)ins.push({c:'warn',t:`Lỗ hổng lớn nhất: <b>${gaps[0].l}</b> mới được bảo vệ ${Math.round((1-gaps[0].r)*100)}% nhu cầu.`});
   else ins.push({c:'ok',t:'Bảo hiểm hiện có đã đáp ứng các nhu cầu đã chọn. IC nên rà soát lại mức nhu cầu hoặc mở rộng nhóm nhu cầu khác.'});
-  const nm={chinh:'STBH sản phẩm chính',blnt:'STBH bệnh lý nghiêm trọng',hscr:'HSCR'},rel={chinh:'Bảo vệ khoản vay, Tài sản, Thu nhập, Học vấn hoặc Thừa kế',blnt:'KH chưa có khoản trả nợ hằng tháng — nhập chi phí điều trị muốn dự phòng',hscr:'kiểm tra thu nhập / chi phí / trả nợ ở bước Dòng tiền'};
+  const nm={chinh:'STBH sản phẩm chính',blnt:'STBH bệnh lý nghiêm trọng',hscr:'HSCR'},rel={chinh:'Bảo vệ khoản vay, Tài sản, Thu nhập, Học vấn hoặc Thừa kế',blnt:'chưa chọn Bảo vệ tài chính (tài sản), Thu nhập hoặc Học vấn',hscr:'kiểm tra thu nhập / chi phí / trả nợ ở bước Dòng tiền'};
   TYPES.forEach(([k])=>{if(!tot[k]&&d.ex[k])ins.push({c:'warn',t:`KH đang có ${nm[k]} ${k==='hscr'?fmt(d.ex[k])+' triệu/ngày':short(d.ex[k])} nhưng nhu cầu tính ra bằng 0 (${rel[k]}).`})});
   if(topChinh)ins.push({c:'',t:`Phần lớn STBH chính đến từ nhu cầu <b>${topChinh.l}</b> (${Math.round(topChinh.v/tot.chinh*100)}%) — nên mở đầu câu chuyện tư vấn từ đây.`});
   if(d.thangDu<=0)ins.push({c:'warn',t:'Dòng tiền không có thặng dư: ngân sách phí theo điều kiện tiết kiệm bằng 0. Cần xem lại chi tiêu trước khi đề xuất phí.'});
@@ -708,6 +711,7 @@ function renderResults(d,needs){
   (d.goalMiss||[]).forEach(m=>ins.push({c:'warn',t:`KH chọn mục tiêu <b>${m.goal}</b> nhưng chưa tick nhóm <b>${m.need}</b>.`}));
   if(d.eduYear>0&&Math.abs(d.eduYear-d.chiGD)>d.eduYear*0.1)ins.push({c:'warn',t:`Học phí ở bước 2 (${short(d.eduYear)}/năm) lệch với dòng tiền (${short(d.chiGD)}/năm) — thặng dư và ngân sách phí có thể đang sai.`});
 
+  const cv=(k,v)=>!v?'0':k==='hscr'?fmt(v)+' triệu':short(v);
   R.innerHTML=`
    <div class="kpis">${kpi('chinh','STBH chính')}${kpi('blnt','STBH bệnh lý nghiêm trọng')}${kpi('hscr','HSCR')}
      <div class="kpi budget"><div><div class="kk">Phí bảo hiểm tối đa/năm</div><div class="kv">${short(cap)}</div><div class="ks">≈ ${short(cap/12)}/tháng · ${d.tongThu?(cap/d.tongThu*100).toFixed(1).replace('.',','):0}% thu nhập</div></div></div></div>
@@ -730,12 +734,12 @@ function renderResults(d,needs){
 
    <div class="card"><h4>Điểm chính để tư vấn</h4><ul class="insights">${ins.map(i=>`<li class="${i.c}">${i.t}</li>`).join('')}</ul></div>
 
-   <div class="card"><h4>Đầu vào thiết kế bảng minh họa</h4><p class="cd">IC dùng các con số dưới đây để thiết kế trên hệ thống. Đề xuất đã làm tròn lên (10 triệu với STBH, 0,1 triệu với HSCR). Đơn vị: triệu đồng.</p>
+   <div class="card"><h4>Đầu vào thiết kế bảng minh họa</h4><p class="cd">IC dùng các con số dưới đây để thiết kế trên hệ thống. Đề xuất đã làm tròn lên (10 triệu với STBH, 0,1 triệu với HSCR).</p>
      <div class="tw"><table class="ic-table"><thead><tr><th>Hạng mục</th><th class="r">Nhu cầu</th><th class="r">Đã có</th><th class="r">Còn thiếu</th><th class="r">Đề xuất thiết kế</th></tr></thead><tbody>
-       ${TYPES.map(([k,l,u])=>tot[k]?`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r">${fmt(tot[k])}</td><td class="r">${fmt(d.ex[k])}</td><td class="r">${fmt(gap[k])}</td><td class="r hl">${fmt(roundUp(gap[k],k==='hscr'?100000:10000000))}</td></tr>`:`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r" style="color:var(--muted)">0</td><td class="r">${fmt(d.ex[k])}</td><td class="r" style="color:var(--muted)">–</td><td class="r" style="color:var(--muted)">Không cần thêm</td></tr>`).join('')}
+       ${TYPES.map(([k,l,u])=>tot[k]?`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r">${cv(k,tot[k])}</td><td class="r">${cv(k,d.ex[k])}</td><td class="r">${cv(k,gap[k])}</td><td class="r hl">${cv(k,roundUp(gap[k],k==='hscr'?100000:10000000))}</td></tr>`:`<tr><td>${l}${k==='hscr'?' (triệu/ngày)':''}</td><td class="r" style="color:var(--muted)">0</td><td class="r">${cv(k,d.ex[k])}</td><td class="r" style="color:var(--muted)">–</td><td class="r" style="color:var(--muted)">Không cần thêm</td></tr>`).join('')}
        <tr><td>Thẻ MR (bảo lãnh viện phí)</td><td class="r" colspan="3"></td><td class="r hl">${mr?'Có nhu cầu':'Không'}</td></tr>
-       ${huu?`<tr><td>Giá trị hoàn lại mục tiêu tại tuổi ${d.tuoiHuu}</td><td class="r" colspan="3"></td><td class="r hl">${fmt(huu)}</td></tr>`:''}
-       <tr class="total"><td>Phí bảo hiểm tối đa/năm</td><td class="r" colspan="3"></td><td class="r hl">${fmt(cap)}</td></tr>
+       ${huu?`<tr><td>Giá trị hoàn lại mục tiêu tại tuổi ${d.tuoiHuu}</td><td class="r" colspan="3"></td><td class="r hl">${short(huu)}</td></tr>`:''}
+       <tr class="total"><td>Phí bảo hiểm tối đa/năm</td><td class="r" colspan="3"></td><td class="r hl">${short(cap)}</td></tr>
      </tbody></table></div>
      <p class="note">Công cụ hỗ trợ phân tích nhu cầu, không thay thế bảng minh họa chính thức. Nếu phí thiết kế vượt ngân sách, IC ưu tiên lấp khoảng trống lớn nhất trước.</p></div>`;
   $('#resSub').textContent=`${d.ten||'Khách hàng'}${d.tuoi?', '+d.tuoi+' tuổi':''} · ${needs.length} nhóm nhu cầu đã chọn`;
@@ -793,9 +797,10 @@ function fillSample(){
   setMoney($('.nv-mb[data-k="thechap"]'),3e9);
   [0,2,5,6].forEach(i=>$$('.goal')[i].checked=true);
   addEx({sp:'An tâm trọn đời',ct:'Công ty khác',chinh:1e9,blnt:300e6,hscr:0});
-  ['vay','thunhap','hocvan','huutri','suckhoe'].forEach(id=>$(`.need[data-need="${id}"] .need-on`).checked=true);
+  ['vay','taisan','thunhap','hocvan','huutri','suckhoe'].forEach(id=>$(`.need[data-need="${id}"] .need-on`).checked=true);
   setMoney($('[data-n="huutri"][data-k="co"]'),1.5e9);
   $('[data-n="suckhoe"][data-k="mr"]').checked=true;
+  setMoney($('[data-n="taisan"][data-k="dt"]'),5e8);
   recalc();
   $$('.block').forEach((b,i)=>{b.classList.add('done');b.classList.remove('locked')});syncStepper();
   $('#resultBlock').scrollIntoView({behavior:'smooth'});
